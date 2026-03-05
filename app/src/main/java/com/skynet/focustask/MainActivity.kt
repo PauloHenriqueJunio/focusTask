@@ -3,6 +3,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 
 
 class MainActivity : ComponentActivity() {
@@ -81,6 +84,7 @@ fun TaskScreen(onTaskClick: (String) -> Unit) {
     val taskList = remember { mutableStateListOf("Estudar para apresentação do MVP", "Configurar API da IA") }
 
     Column(modifier = Modifier.padding(16.dp)) {
+        // Mantemos o título, mas você pode tirar se preferir seguir 100% o Figma
         Text(
             text = "Minhas Tarefas",
             fontSize = 24.sp,
@@ -88,33 +92,67 @@ fun TaskScreen(onTaskClick: (String) -> Unit) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        // O TOPO DA TELA (Input + Botão +)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
         ) {
-            OutlinedTextField(
+            // 1. O Campo de Texto estilo Figma (Preenchido e sem linha embaixo)
+            TextField(
                 value = newTaskName,
                 onValueChange = { newTaskName = it },
-                label = { Text("O que você vai focar hoje?") },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = {
-                    if (newTaskName.isNotBlank()) {
-                        taskList.add(newTaskName)
-                        newTaskName = ""
+                label = { Text("Label") }, // Igual ao seu desenho
+                placeholder = { Text("Input") },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp), // Bordas arredondadas
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent, // Tira a linha de baixo
+                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                ),
+                trailingIcon = {
+                    // O ícone de "X" só aparece se tiver algum texto digitado
+                    if (newTaskName.isNotEmpty()) {
+                        IconButton(onClick = { newTaskName = "" }) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Clear,
+                                contentDescription = "Limpar texto"
+                            )
+                        }
                     }
-                },
-                modifier = Modifier.height(56.dp)
+                }
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // 2. O Botão de "+" (Quadrado arredondado com destaque)
+            Box(
+                modifier = Modifier
+                    .size(56.dp) // Um quadrado perfeito alinhado com a altura do input
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer, // O roxinho do seu Figma
+                        shape = RoundedCornerShape(16.dp) // Borda bem arredondada
+                    )
+                    .clickable {
+                        if (newTaskName.isNotBlank()) {
+                            taskList.add(newTaskName)
+                            newTaskName = "" // Limpa o campo após adicionar
+                        }
+                    },
+                contentAlignment = Alignment.Center // Centraliza o + no meio do quadrado
             ) {
-                Text("Add")
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Add,
+                    contentDescription = "Adicionar Tarefa",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer // Cor do ícone combinando com o fundo
+                )
             }
         }
 
+        // A Lista de Tarefas (não mexemos aqui)
         LazyColumn {
             items(taskList) { task ->
-                // Passamos a ação de clique para o Card
                 TaskCard(taskName = task, onClick = { onTaskClick(task) })
             }
         }
@@ -123,16 +161,16 @@ fun TaskScreen(onTaskClick: (String) -> Unit) {
 
 @Composable
 fun TaskCard(taskName: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(
+    OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
             .clickable { onClick() }, // Mantém o clique para navegar
-        colors = CardDefaults.cardColors(
+        colors = CardDefaults.outlinedCardColors(
             // Usa uma cor de superfície clarinha (padrão M3) em vez de cinza escuro
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
-        shape = RoundedCornerShape(16.dp), // Borda bem arredondada igual ao seu Figma
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), // Borda bem arredondada igual ao seu Figma
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp) // Sem sombra, estilo "flat" moderno
     ) {
         Row(
