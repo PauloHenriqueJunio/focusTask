@@ -1,59 +1,59 @@
-package components
+package com.skynet.focustask.components
 
+import ViewModel.Task
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import kotlinx.coroutines.delay
 @Composable
-fun TaskCard(taskName: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun TaskCard(task: Task, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val totalTime = 60
+
+    // O Motor do Tempo agora olha para o task.isRunning
+    LaunchedEffect(task.isRunning) {
+        while (task.isRunning) {
+            delay(1000L)
+            task.timeElapsed++ // Atualiza o tempo global da tarefa!
+        }
+    }
+
+    val progress = if (totalTime > 0) task.timeElapsed.toFloat() / totalTime else 0f
+    val minutes = task.timeElapsed / 60
+    val seconds = task.timeElapsed % 60
+    val timeString = String.format("%02d:%02d", minutes, seconds)
+
     OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
-            .clickable { onClick() }, // Mantém o clique para navegar
-        colors = CardDefaults.outlinedCardColors(
-            // Usa uma cor de superfície clarinha (padrão M3) em vez de cinza escuro
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), // Borda bem arredondada igual ao seu Figma
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp) // Sem sombra, estilo "flat" moderno
+            .clickable { onClick() },
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. Bolinha com a inicial da tarefa (Igual a letra "A" roxinha do seu Figma)
             Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape),
+                modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = taskName.take(1).uppercase(), // Pega a primeira letra do que você digitou
+                    text = task.name.take(1).uppercase(), // task.name!
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -62,42 +62,41 @@ fun TaskCard(taskName: String, onClick: () -> Unit, modifier: Modifier = Modifie
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // 2. Textos no meio (Header e Subhead)
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Placeholder", // Como no seu Figma (depois podemos mudar para algo real)
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(end = 14.dp),
-                    text = taskName, // Aqui fica o nome real da tarefa que você digitou
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text(text = "Em andamento", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = task.name, fontSize = 16.sp, fontWeight = FontWeight.Bold) // task.name!
             }
 
-            // 3. O espaço do cronômetro vazio ("Tt") da direita do seu Figma
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator(
-                    progress = { 0.50f },
-                    modifier = Modifier
-                        .padding(top = 15.dp)
-                        .size(35.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    strokeWidth = 3.7.dp
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.size(40.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        strokeWidth = 3.dp
+                    )
+
+                    IconButton(
+                        // O clique altera o estado global da tarefa!
+                        onClick = { task.isRunning = !task.isRunning },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (task.isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = "Play/Pause",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
-                    modifier = Modifier
-                        .padding(top = 3.dp),
-                    text = "00:00",
-                    fontSize = 15.sp,
+                    text = timeString,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
