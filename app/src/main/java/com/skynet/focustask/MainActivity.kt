@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.ArrowBack
 
 
 class MainActivity : ComponentActivity() {
@@ -199,12 +201,14 @@ fun TaskCard(taskName: String, onClick: () -> Unit, modifier: Modifier = Modifie
             // 2. Textos no meio (Header e Subhead)
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Header", // Como no seu Figma (depois podemos mudar para algo real)
+                    text = "Placeholder", // Como no seu Figma (depois podemos mudar para algo real)
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
+                    modifier = Modifier
+                        .padding(end = 14.dp),
                     text = taskName, // Aqui fica o nome real da tarefa que você digitou
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -213,15 +217,21 @@ fun TaskCard(taskName: String, onClick: () -> Unit, modifier: Modifier = Modifie
 
             // 3. O espaço do cronômetro vazio ("Tt") da direita do seu Figma
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
+                CircularProgressIndicator(
+                    progress = { 0.50f },
                     modifier = Modifier
-                        .size(32.dp)
-                        .border(2.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                        .padding(top = 15.dp)
+                        .size(35.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    strokeWidth = 3.7.dp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Tt",
-                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .padding(top = 3.dp),
+                    text = "00:00",
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -236,30 +246,145 @@ fun TaskCard(taskName: String, onClick: () -> Unit, modifier: Modifier = Modifie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(taskName: String, onBackClick: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Uma TopAppBar clássica do Android com botão de voltar
-        TopAppBar(
-            title = { Text("Detalhes da Tarefa") },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Voltar")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // 1. TOPO: Barra de progresso e Botão Voltar igual ao Figma
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 24.dp)
+        ) {
+
+            // O Botão de "<- Voltar" personalizado do seu Figma
+            Surface(
+                modifier = Modifier.padding(top = 9.dp, bottom = 9.dp),
+                onClick = onBackClick,
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Voltar",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Voltar",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
                 }
             }
+        }
+
+        // 2. O CARD DA TAREFA (Limpo, sem o cronômetro circular)
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp),
+            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = taskName.take(1).uppercase(),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(text = "Em andamento", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = taskName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        // 3. ÁREA DE TEXTO (Onde o Lorem Ipsum estava no Figma)
+
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Text(
+                        text = "Análise da Inteligência Artificial",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "Feedback e métricas", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Aqui entrará o feedback inteligente da IA analisando o tempo que você gastou nesta atividade.",
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+            }
+
+        }
+
+
+
+
+        // Este Spacer com weight(1f) é um truque ninja! Ele empurra tudo que vem abaixo dele para o final da tela.
+        Spacer(modifier = Modifier.weight(1f))
+
+        LinearProgressIndicator(
+            progress = { 0.75f }, // Fixo em 50% só para o visual
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(bottom = 40.dp),
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
 
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = taskName,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Aqui ficará a interface que você desenhou no Figma para a Tela 2, com o círculo de progresso, botões de ação e o feedback da Inteligência Artificial.",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        // 4. BOTÕES DE AÇÃO (Secondary e Primary do Figma)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End // Joga os botões para a direita
+        ) {
+            OutlinedButton(onClick = { /* Zero lógica */ }) {
+                Text("Pausar") // O botão Secondary (borda vazada)
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = { /* Zero lógica */ }) {
+                Text("Finalizar") // O botão Primary (preenchido)
+            }
         }
+
+        Spacer(modifier = Modifier.height(32.dp)) // Espaço extra no fundo
     }
 }
