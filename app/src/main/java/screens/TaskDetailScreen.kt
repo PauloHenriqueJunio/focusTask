@@ -1,6 +1,5 @@
 package com.skynet.focustask.screens
 
-import ViewModel.FocusViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.skynet.focustask.viewmodel.FocusViewModel
 
 @Composable
 fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: () -> Unit) {
@@ -66,21 +66,19 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-                    contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                OutlinedButton(
+                    // ANTES: onClick = { task.isRunning = !task.isRunning }
+                    onClick = { viewModel.toggleTimer(task) } // AGORA: Chama o motor do cérebro!
                 ) {
-                    Text(
-                        text = task.name.take(1).uppercase(),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold, fontSize = 20.sp
-                    )
+                    Text(if (task.isRunning) "Pausar" else "Retomar")
                 }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(text = "Em andamento", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = task.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = { /* Lógica de Finalizar futura */ }) {
+                    Text("Finalizar")
                 }
             }
         }

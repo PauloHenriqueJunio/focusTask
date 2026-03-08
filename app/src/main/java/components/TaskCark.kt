@@ -1,6 +1,5 @@
 package com.skynet.focustask.components
 
-import ViewModel.Task
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,18 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.skynet.focustask.viewmodel.Task
 import kotlinx.coroutines.delay
 @Composable
-fun TaskCard(task: Task, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun TaskCard(task: Task, onClick: () -> Unit, onToggleTimer: () -> Unit, modifier: Modifier = Modifier) {
     val totalTime = 60
-
-    // O Motor do Tempo agora olha para o task.isRunning
-    LaunchedEffect(task.isRunning) {
-        while (task.isRunning) {
-            delay(1000L)
-            task.timeElapsed++ // Atualiza o tempo global da tarefa!
-        }
-    }
 
     val progress = if (totalTime > 0) task.timeElapsed.toFloat() / totalTime else 0f
     val minutes = task.timeElapsed / 60
@@ -78,8 +70,7 @@ fun TaskCard(task: Task, onClick: () -> Unit, modifier: Modifier = Modifier) {
                     )
 
                     IconButton(
-                        // O clique altera o estado global da tarefa!
-                        onClick = { task.isRunning = !task.isRunning },
+                        onClick = onToggleTimer, // AGORA FICA ASSIM!
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(

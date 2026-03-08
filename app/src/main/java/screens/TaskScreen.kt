@@ -1,6 +1,5 @@
 package screens
 
-import ViewModel.FocusViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skynet.focustask.components.TaskCard
+import com.skynet.focustask.viewmodel.FocusViewModel
 
 @Composable
 fun TaskScreen(viewModel: FocusViewModel, onTaskClick: (String) -> Unit) {
@@ -82,8 +82,11 @@ fun TaskScreen(viewModel: FocusViewModel, onTaskClick: (String) -> Unit) {
 
         LazyColumn {
             items(taskList) { task ->
-                // Agora passamos o OBJETO INTEIRO da tarefa, e não só o nome!
-                TaskCard(task = task, onClick = { onTaskClick(task.name) })
+                TaskCard(
+                    task = task,
+                    onClick = { onTaskClick(task.name) },
+                    onToggleTimer = { viewModel.toggleTimer(task) } // Conectamos o botão ao motor do Cérebro!
+                )
             }
         }
     }
