@@ -1,9 +1,7 @@
-package com.skynet.focustask.screens
+package screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -122,7 +120,7 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
         ) {
             OutlinedButton(
                 // O botão Secundário agora altera o ViewModel!
-                onClick = { task.isRunning = !task.isRunning }
+                onClick = { viewModel.toggleTimer(task) }
             ) {
                 // Se estiver rodando exibe "Pausar", senão "Retomar"
                 Text(if (task.isRunning) "Pausar" else "Retomar")
