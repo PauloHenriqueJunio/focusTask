@@ -57,29 +57,6 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
             }
         }
 
-        // CARD DA TAREFA
-        OutlinedCard(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                OutlinedButton(
-                    // ANTES: onClick = { task.isRunning = !task.isRunning }
-                    onClick = { viewModel.toggleTimer(task) } // AGORA: Chama o motor do cérebro!
-                ) {
-                    Text(if (task.isRunning) "Pausar" else "Retomar")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Lógica de Finalizar futura */ }) {
-                    Text("Finalizar")
-                }
-            }
-        }
 
         // ÁREA DA IA
         OutlinedCard(
@@ -104,7 +81,7 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
 
         // BARRA DE PROGRESSO ANIMADA (Lê o progress vivo da tarefa!)
         LinearProgressIndicator(
-            progress = { progress }, // Fixo em 50% só para o visual
+            progress = { progress },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
