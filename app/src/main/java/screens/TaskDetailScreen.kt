@@ -51,7 +51,12 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Voltar", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        "Voltar",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }
@@ -63,44 +68,63 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                Text(text = "Análise da Inteligência Artificial", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Feedback e métricas", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Lorem ipsum dolor sit amet... Aqui entrará o feedback inteligente da IA analisando o tempo que você gastou nesta atividade.",
-                    fontSize = 16.sp, lineHeight = 24.sp, color = MaterialTheme.colorScheme.onSurface
+                    text = "Análise da Inteligência Artificial",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Feedback e métricas",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                if (task.isLoadingFeedback) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    }
+                } else {
+                    Text(
+                        text = task.aiFeedback,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f))
 
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(bottom = 40.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(bottom = 40.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            OutlinedButton(
-                onClick = { viewModel.toggleTimer(task) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Text(if (task.isRunning) "Pausar" else "Retomar")
+                OutlinedButton(
+                    onClick = { viewModel.toggleTimer(task) }
+                ) {
+                    Text(if (task.isRunning) "Pausar" else "Retomar")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { viewModel.getFeedbackFromAi(task) },
+                    enabled = !task.isLoadingFeedback
+                ) {
+                    Text("Finalizar")
+                }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { /* Lógica de Finalizar futura */ }) {
-                Text("Finalizar")
-            }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+        }
     }
 }

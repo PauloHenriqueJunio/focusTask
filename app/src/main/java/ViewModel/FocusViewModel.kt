@@ -35,12 +35,10 @@ class FocusViewModel : ViewModel() {
         return taskList.find { it.name == name }
     }
 
-    // O Motor Blindado
     fun toggleTimer(task: Task) {
         task.isRunning = !task.isRunning
 
         if (task.isRunning) {
-            // Se der Play, cancelamos qualquer fantasma anterior e ligamos o motor
             task.timerJob?.cancel()
             task.timerJob = viewModelScope.launch {
                 while (task.isRunning) {
@@ -49,7 +47,6 @@ class FocusViewModel : ViewModel() {
                 }
             }
         } else {
-            // Se der Pause, nós "matamos" o motor imediatamente na mesma hora!
             task.timerJob?.cancel()
         }
     }
@@ -64,12 +61,14 @@ class FocusViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val prompt = "Você é um assistente de produtividade. O usuário gastou ${task.timeElapsed} segundos na tarefa '${task.name}'. Me dê um feedback curto, encorajador e profssional de no máximo até 5 linhas sobre essa atividade"
+                val prompt = "Você é um assistente de produtividade. Informe quantos segundos o usuário gastou na tarefa,ou seja ele gastou: ${task.timeElapsed} segundos. Dê um feedback curto, profissional e encorajador de no máximo 5 frases sobre essa atividade."
 
-                val request = OllamaRequest(model = "llama3", prompt = prompt)
+                val request = OllamaRequest(model = "gemma2:2b", prompt = prompt)
                 val result = OllamaClient.api.generateFeedback(request)
 
                 task.aiFeedback = result.response
+            } catch (e: Exception) {
+                task.aiFeedback = "Erro ao conectar com a IA: ${e.message}. O Ollama está rodando no PC?"
             } finally {
                 task.isLoadingFeedback = false
             }
