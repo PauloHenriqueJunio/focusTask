@@ -32,7 +32,6 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // TOPO: Botão Voltar
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 24.dp)
         ) {
@@ -57,8 +56,6 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
             }
         }
 
-
-        // ÁREA DA IA
         OutlinedCard(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -79,7 +76,6 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // BARRA DE PROGRESSO ANIMADA (Lê o progress vivo da tarefa!)
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier
@@ -90,16 +86,13 @@ fun TaskDetailScreen(taskName: String, viewModel: FocusViewModel, onBackClick: (
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
 
-        // BOTÕES DE AÇÃO
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
             OutlinedButton(
-                // O botão Secundário agora altera o ViewModel!
                 onClick = { viewModel.toggleTimer(task) }
             ) {
-                // Se estiver rodando exibe "Pausar", senão "Retomar"
                 Text(if (task.isRunning) "Pausar" else "Retomar")
             }
             Spacer(modifier = Modifier.width(8.dp))

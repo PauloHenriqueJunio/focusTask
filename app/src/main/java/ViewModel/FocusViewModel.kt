@@ -10,11 +10,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job // <-- IMPORT NOVO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.skynet.focustask.network.OllamaClient
+import com.skynet.focustask.network.OllamaRequest
 
 class Task(val name: String) {
     var timeElapsed by mutableIntStateOf(0)
     var isRunning by mutableStateOf(false)
-    var timerJob: Job? = null // <-- A MÁGICA AQUI: Guardamos a "chave" do motor!
+    var timerJob: Job? = null
+    var aiFeedback by mutableStateOf("Nenhum feedback ainda. Finalize a tarefa para gerar a análise.")
+    var isLoadingFeedback by mutableStateOf(false)
 }
 
 class FocusViewModel : ViewModel() {
@@ -47,6 +51,28 @@ class FocusViewModel : ViewModel() {
         } else {
             // Se der Pause, nós "matamos" o motor imediatamente na mesma hora!
             task.timerJob?.cancel()
+        }
+    }
+
+    fun getFeedbackFromAi(task: Task) {
+        if (task.isRunning) {
+            toggleTimer(task)
+        }
+
+        task.isLoadingFeedback = true
+        task.aiFeedback = "Analisando o desempenho da IA..."
+
+        viewModelScope.launch {
+            try {
+                val prompt = "Você é um assistente de produtividade. O usuário gastou ${task.timeElapsed} segundos na tarefa '${task.name}'. Me dê um feedback curto, encorajador e profssional de no máximo até 5 linhas sobre essa atividade"
+
+                val request = OllamaRequest(model = "llama3", prompt = prompt)
+                val result = OllamaClient.api.generateFeedback(request)
+
+                task.aiFeedback = result.response
+            } finally {
+                task.isLoadingFeedback = false
+            }
         }
     }
 }
