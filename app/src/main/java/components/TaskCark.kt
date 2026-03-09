@@ -56,7 +56,26 @@ fun TaskCard(task: Task, onClick: () -> Unit, onToggleTimer: () -> Unit, modifie
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = "Em andamento", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(text = task.name, fontSize = 16.sp, fontWeight = FontWeight.Bold) // task.name!
+                Text(text = task.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "⏰ ${task.deadline}",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "• ${task.difficulty}",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Text(
+                        text = "• ${task.estimatedTime}",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

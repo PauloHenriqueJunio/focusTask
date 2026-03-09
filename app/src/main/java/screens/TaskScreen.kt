@@ -22,17 +22,40 @@ import com.skynet.focustask.viewmodel.FocusViewModel
 @Composable
 fun TaskScreen(viewModel: FocusViewModel, onTaskClick: (String) -> Unit) {
     var newTaskName by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
 
     // A lista agora vem do Cérebro Global!
     val taskList = viewModel.taskList
+    val isOrganizing = viewModel.isOrganizing
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            text = "Minhas Tarefas",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Minhas Tarefas",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Button(
+                onClick = { viewModel.organizeTasksWithAI() },
+                enabled = !isOrganizing && taskList.size > 1,
+                modifier = Modifier.height(40.dp)
+            ) {
+                if (isOrganizing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("🧠 Organizar")
+                }
+            }
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -66,8 +89,7 @@ fun TaskScreen(viewModel: FocusViewModel, onTaskClick: (String) -> Unit) {
                     .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(16.dp))
                     .clickable {
                         if (newTaskName.isNotBlank()) {
-                            viewModel.addTask(newTaskName) // Salva no cérebro!
-                            newTaskName = ""
+                            showDialog = true
                         }
                     },
                 contentAlignment = Alignment.Center
@@ -78,6 +100,18 @@ fun TaskScreen(viewModel: FocusViewModel, onTaskClick: (String) -> Unit) {
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
+        }
+        
+        if (showDialog) {
+            AddTaskDialog(
+                taskName = newTaskName,
+                onDismiss = { showDialog = false },
+                onConfirm = { name, deadline, difficulty, estimatedTime ->
+                    viewModel.addTask(name, deadline, difficulty, estimatedTime)
+                    newTaskName = ""
+                    showDialog = false
+                }
+            )
         }
 
         LazyColumn {
@@ -90,4 +124,116 @@ fun TaskScreen(viewModel: FocusViewModel, onTaskClick: (String) -> Unit) {
             }
         }
     }
+}
+
+@Composable
+fun AddTaskDialog(
+    taskName: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String, String, String, String) -> Unit
+) {
+    var deadline by remember { mutableStateOf("Sem prazo") }
+    var difficulty by remember { mutableStateOf("Média") }
+    var estimatedTime by remember { mutableStateOf("1h") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Adicionar nova tarefa", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("Nome: $taskName", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Prazo", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf("Hoje", "Amanhã", "3 dias", "1 semana").forEach { option ->
+                            FilterChip(
+                                selected = deadline == option,
+                                onClick = { deadline = option },
+                                label = { Text(option, fontSize = 12.sp) }
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf("2 semanas", "1 mês", "Sem prazo").forEach { option ->
+                            FilterChip(
+                                selected = deadline == option,
+                                onClick = { deadline = option },
+                                label = { Text(option, fontSize = 12.sp) }
+                            )
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Text("Dificuldade", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("Fácil", "Média", "Difícil").forEach { option ->
+                        FilterChip(
+                            selected = difficulty == option,
+                            onClick = { difficulty = option },
+                            label = { Text(option, fontSize = 12.sp) }
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Text("Tempo estimado", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf("30min", "1h", "2h", "3h", "4h").forEach { option ->
+                            FilterChip(
+                                selected = estimatedTime == option,
+                                onClick = { estimatedTime = option },
+                                label = { Text(option, fontSize = 12.sp) }
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf("1 dia", "2 dias", "3 dias", "1 semana", "2 semanas").forEach { option ->
+                            FilterChip(
+                                selected = estimatedTime == option,
+                                onClick = { estimatedTime = option },
+                                label = { Text(option, fontSize = 12.sp) }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(taskName, deadline, difficulty, estimatedTime) }) {
+                Text("Adicionar")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
 }
