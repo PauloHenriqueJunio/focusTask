@@ -71,6 +71,7 @@ class FocusViewModel : ViewModel() {
             try {
                 val prompt = "Você é um assistente de produtividade. Informe quantos segundos o usuário gastou na tarefa,ou seja ele gastou: ${task.timeElapsed} segundos. Dê um feedback curto, profissional e encorajador de no máximo 5 frases sobre essa atividade."
 
+                // Modelo para testes: altere aqui (ex: "gemma3:270m", "gemma3:1b")
                 val request = OllamaRequest(model = "gemma3:1b", prompt = prompt)
                 val result = OllamaClient.api.generateFeedback(request)
 
@@ -89,6 +90,7 @@ class FocusViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val prompt = buildOrganizationPrompt()
+                // Modelo para testes: altere aqui (ex: "gemma3:270m", "gemma3:1b")
                 val request = OllamaRequest(model = "gemma3:1b", prompt = prompt)
                 val result = OllamaClient.api.generateFeedback(request)
                 
